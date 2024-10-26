@@ -2,7 +2,6 @@ import { Service } from "typedi";
 import {
   IPaginatedUsers,
   IUserLoginResponse,
-  IUserPopulated,
   IUserSignupData,
   IUserSignupResponse,
 } from "../interfaces/user.interface";
@@ -13,8 +12,6 @@ import Role from "../../../models/role";
 import jwt from "jsonwebtoken";
 import { jwtSecret, tokenExpireTime } from "../../../configs/app.config";
 import AuthError from "../../../errors/auth.error";
-import mongoose from "mongoose";
-import { connectDB } from "../../../configs/db";
 import RoleFeature from "../../../models/role-feature";
 
 @Service()
@@ -214,6 +211,22 @@ export class UserService {
       };
     } catch (error) {
       console.error("Error fetching users:", error);
+      throw error;
+    }
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    try {
+      // Check if the user exists
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new BadRequestError("User not found");
+      }
+
+      // Delete the user from the database
+      await User.findByIdAndDelete(userId);
+    } catch (error) {
+      console.error("Error deleting user:", error);
       throw error;
     }
   }

@@ -2,10 +2,6 @@ import express, { NextFunction, Request, Response, Router } from "express";
 import Container from "typedi";
 import { wrap } from "../../../middlewares/wraps.middle";
 import { UserService } from "../services/user.service";
-import {
-  IUserSignupData,
-  IUserSignupResponse,
-} from "../interfaces/user.interface";
 import { validates } from "../../../middlewares/express-validation.middle";
 import {
   userLoginValidation,
@@ -76,6 +72,21 @@ router.get(
     res.status(200).json({
       message: "Request successful",
       data: users,
+    });
+  })
+);
+
+// Delete User API
+router.delete(
+  "/delete/:id",
+  [authMiddleware, checkPermission("DELETE_USER")],
+  wrap(async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const userService: UserService = Container.get(UserService);
+    await userService.deleteUser(id);
+
+    res.status(200).json({
+      message: "User deleted successfully",
     });
   })
 );

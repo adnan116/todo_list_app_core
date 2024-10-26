@@ -128,13 +128,13 @@ const initializeRolesAndFeatures = async () => {
           gender: userData.adminUser.gender,
           religion: userData.adminUser.religion,
           username: userData.adminUser.username,
-          password: hashedPassword, // Use hashed password
+          password: hashedPassword,
           is_active: userData.adminUser.is_active,
-          role_id: adminRole._id, // Associate with admin role
+          role_id: adminRole._id,
           created_by: userData.adminUser.created_by,
         });
 
-        await adminUserDocument.save(); // Save the admin user to the database
+        await adminUserDocument.save();
         console.log("[DATABASE INIT] Admin user created successfully.");
       } else {
         console.log("[DATABASE INIT] Admin user already exists.");

@@ -55,3 +55,10 @@ export interface IPaginatedUsers {
   totalPages: number;
   totalUsers: number;
 }
+
+export interface userTokenData {
+  userId: string;
+  username: string;
+  roleId: string;
+  userType: string;
+}

@@ -4,11 +4,12 @@ import User from "../../../models/user";
 import RoleFeature from "../../../models/role-feature";
 import Feature from "../../../models/feature";
 import AuthError from "../../../errors/auth.error";
+import { userTokenData } from "../interfaces/user.interface";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 
 export interface AuthRequest extends Request {
-  user?: { userId: number; roleId: number };
+  user?: userTokenData;
 }
 
 // Authenticate JWT token
@@ -26,11 +27,13 @@ export const authMiddleware = async (
   const token = authHeader ? authHeader.split(" ")[1] : "";
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      userId: number;
-      roleId: number;
+    const decoded = jwt.verify(token, JWT_SECRET) as userTokenData;
+    req.user = {
+      userId: decoded.userId,
+      username: decoded.username,
+      roleId: decoded.roleId,
+      userType: decoded.userType,
     };
-    req.user = { userId: decoded.userId, roleId: decoded.roleId };
     next();
   } catch (err) {
     next(new AuthError("Invalid or expired token"));

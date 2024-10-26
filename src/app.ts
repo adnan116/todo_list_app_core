@@ -10,6 +10,7 @@ import { connectDB } from "./configs/db";
 
 // importing modules
 import * as userModule from "./modules/user";
+import * as taskCategoryModule from "./modules/task-category";
 
 export default async function appFactory(): Promise<Application> {
   // express app init
@@ -58,6 +59,7 @@ export default async function appFactory(): Promise<Application> {
    * Register Modules
    */
   userModule.init(app);
+  taskCategoryModule.init(app);
 
   /**
    * Register Error Handler
