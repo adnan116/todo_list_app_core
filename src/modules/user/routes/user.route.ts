@@ -15,7 +15,7 @@ import { authMiddleware, checkPermission } from "../middlewares/auth.middle";
 
 const router: Router = express.Router();
 
-// Sign up API for users
+// Sign up/ Add API for new users
 router.post(
   "/sign-up",
   validates(userSignUpValidation),
@@ -50,13 +50,28 @@ router.post(
   })
 );
 
+// Get users API with pagination
 router.get(
   "/list",
   [authMiddleware, checkPermission("GET_USER")],
   wrap(async (req: Request, res: Response, next: NextFunction) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, search, ...filters } = req.query;
+
+    // Convert query string filters to the expected format
+    const parsedFilters: { [key: string]: any } = {};
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        parsedFilters[key] = filters[key];
+      }
+    });
+
     const userService = Container.get(UserService);
-    const users = await userService.getUsers(Number(page), Number(limit));
+    const users = await userService.getUsers(
+      Number(page),
+      Number(limit),
+      search as string,
+      parsedFilters
+    );
 
     res.status(200).json({
       message: "Request successful",

@@ -167,20 +167,40 @@ export class UserService {
 
   async getUsers(
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    search?: string,
+    filters?: { [key: string]: any }
   ): Promise<IPaginatedUsers> {
     try {
       // Calculate the skip value for pagination
       const skip = (page - 1) * limit;
 
+      // Build the query object
+      const query: { [key: string]: any } = {};
+
+      // If a search term is provided, add it to the query
+      if (search) {
+        query.$or = [
+          { first_name: { $regex: search, $options: "i" } }, // Case-insensitive search
+          { last_name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { username: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // If additional filters are provided, add them to the query
+      if (filters) {
+        Object.assign(query, filters);
+      }
+
       // Fetch users with pagination and populate the role
-      const users = await User.find()
+      const users = await User.find(query)
         .populate<{ role_id: { id: string; role_name: string } }>("role_id")
         .skip(skip)
         .limit(limit);
 
-      // Get the total count of users in the database
-      const totalUsers = await User.countDocuments();
+      // Get the total count of users based on the query
+      const totalUsers = await User.countDocuments(query);
 
       // Calculate the total number of pages
       const totalPages = Math.ceil(totalUsers / limit);
