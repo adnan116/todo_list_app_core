@@ -55,8 +55,6 @@ export class TaskCategoryService {
     search?: string
   ): Promise<IPaginatedTaskCategories> {
     const skip = (page - 1) * limit;
-
-    // Build the query object
     const query: { [key: string]: any } = {};
 
     // If a search term is provided, add it to the query

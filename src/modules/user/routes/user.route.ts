@@ -40,7 +40,7 @@ router.post(
     const user = await userService.verifyUserLogin(username, password);
 
     res.status(200).json({
-      message: "Login successful",
+      message: "User login successful",
       data: user,
     });
   })
@@ -70,7 +70,7 @@ router.get(
     );
 
     res.status(200).json({
-      message: "Request successful",
+      message: "Users retrieved successfully",
       data: users,
     });
   })

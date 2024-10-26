@@ -48,7 +48,7 @@ router.get(
       search as string
     );
     res.status(200).json({
-      message: "Request successful",
+      message: "Task categories retrieved successfully",
       data: categories,
     });
   })
@@ -62,7 +62,11 @@ router.put(
   wrap(async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     let updateData: ITaskCategoryRequest = req.body;
-    updateData = { ...updateData, updatedBy: req.user.username };
+    updateData = {
+      ...updateData,
+      updatedBy: req.user.username,
+      updatedAt: new Date(),
+    };
     const taskCategoryService = Container.get(TaskCategoryService);
     const updatedCategory = await taskCategoryService.updateTaskCategory(
       id,

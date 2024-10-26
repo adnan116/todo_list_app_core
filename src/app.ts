@@ -11,6 +11,7 @@ import { connectDB } from "./configs/db";
 // importing modules
 import * as userModule from "./modules/user";
 import * as taskCategoryModule from "./modules/task-category";
+import * as taskModule from "./modules/task";
 
 export default async function appFactory(): Promise<Application> {
   // express app init
@@ -46,12 +47,10 @@ export default async function appFactory(): Promise<Application> {
 
   // for handling uncaught exception from application
   process.on("uncaughtException", (err) => {
-    console.error("[ERROR] Uncaught Exception : ", err.message);
     throw new Error(`[ERROR] Uncaught Exception : ${err.message}`);
   });
 
   process.on("unhandledRejection", (error: any) => {
-    console.error("[ERROR] From event: ", error?.toString());
     throw new Error(`[ERROR] From event: ${error?.toString()}`);
   });
 
@@ -60,6 +59,7 @@ export default async function appFactory(): Promise<Application> {
    */
   userModule.init(app);
   taskCategoryModule.init(app);
+  taskModule.init(app);
 
   /**
    * Register Error Handler

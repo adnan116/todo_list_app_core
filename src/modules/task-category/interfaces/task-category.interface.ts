@@ -13,6 +13,7 @@ export interface ITaskCategoryRequest {
   description: string;
   createdBy?: string | null;
   updatedBy?: string | null;
+  updatedAt?: Date;
 }
 
 export interface ITaskCategoryResponse {
