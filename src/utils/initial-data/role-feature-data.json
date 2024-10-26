@@ -1,0 +1,45 @@
+{
+  "roles": [
+    {
+      "role_name": "user",
+      "description": "This is a general user role",
+      "created_by": "SYSTEM"
+    },
+    {
+      "role_name": "admin",
+      "description": "This is an admin user role",
+      "created_by": "SYSTEM"
+    }
+  ],
+  "features": [
+    { "feature_name": "ADD_USER", "created_by": "SYSTEM" },
+    { "feature_name": "UPDATE_USER", "created_by": "SYSTEM" },
+    { "feature_name": "GET_USER", "created_by": "SYSTEM" },
+    { "feature_name": "DELETE_USER", "created_by": "SYSTEM" },
+    { "feature_name": "ADD_CATEGORY", "created_by": "SYSTEM" },
+    { "feature_name": "UPDATE_CATEGORY", "created_by": "SYSTEM" },
+    { "feature_name": "GET_CATEGORY", "created_by": "SYSTEM" },
+    { "feature_name": "DELETE_CATEGORY", "created_by": "SYSTEM" },
+    { "feature_name": "ADD_TASK", "created_by": "SYSTEM" },
+    { "feature_name": "UPDATE_TASK", "created_by": "SYSTEM" },
+    { "feature_name": "GET_TASK", "created_by": "SYSTEM" },
+    { "feature_name": "DELETE_TASK", "created_by": "SYSTEM" }
+  ],
+  "roleFeatureMap": {
+    "user": ["UPDATE_TASK", "GET_TASK"],
+    "admin": [
+      "ADD_USER",
+      "UPDATE_USER",
+      "GET_USER",
+      "DELETE_USER",
+      "ADD_CATEGORY",
+      "UPDATE_CATEGORY",
+      "GET_CATEGORY",
+      "DELETE_CATEGORY",
+      "ADD_TASK",
+      "UPDATE_TASK",
+      "GET_TASK",
+      "DELETE_TASK"
+    ]
+  }
+}
