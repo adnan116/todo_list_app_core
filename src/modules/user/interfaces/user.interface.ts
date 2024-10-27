@@ -71,3 +71,8 @@ export interface userTokenData {
   roleId: string;
   userType: string;
 }
+
+export interface IRoleResponse {
+  id: string;
+  roleName: string;
+}

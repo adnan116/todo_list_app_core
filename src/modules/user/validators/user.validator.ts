@@ -14,12 +14,13 @@ export const userSignUpValidation = [
     .notEmpty()
     .withMessage("Phone number is required."),
   body("email").isEmail().withMessage("A valid email is required."),
-  body("gender").isString().notEmpty().withMessage("Gender is required."),
-  body("religion").isString().notEmpty().withMessage("Religion is required."),
-  body("profilePicture")
-    .optional()
+  body("gender")
     .isString()
-    .withMessage("Profile picture must be a string."),
+    .notEmpty()
+    .withMessage("Gender is required.")
+    .isIn(["Male", "Female", "Other"])
+    .withMessage("Gender is invalid"),
+  body("religion").isString().notEmpty().withMessage("Religion is required."),
   body("password").isString().notEmpty().withMessage("Password is required."),
   body("roleId").optional().isMongoId().withMessage("Invalid role ID"),
 ];
@@ -47,7 +48,7 @@ export const userUpdateValidation = [
   body("email").optional().isEmail().withMessage("Email must be valid"),
   body("gender")
     .optional()
-    .isIn(["male", "female", "other"])
+    .isIn(["Male", "Female", "Other"])
     .withMessage("Gender is invalid"),
   body("religion").optional().isString().withMessage("Religion must be valid"),
   body("roleId").optional().isMongoId().withMessage("Invalid role ID"),

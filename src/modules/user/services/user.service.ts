@@ -1,6 +1,7 @@
 import { Service } from "typedi";
 import {
   IPaginatedUsers,
+  IRoleResponse,
   IUserLoginResponse,
   IUserSignupData,
   IUserSignupResponse,
@@ -272,7 +273,8 @@ export class UserService {
         new: true,
       }
     );
-
+    console.log({updatedUser});
+    
     if (!updatedUser) {
       throw new BadRequestError("User not found");
     }
@@ -293,6 +295,20 @@ export class UserService {
 
       // Delete the user from the database
       await User.findByIdAndDelete(userId);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // get all roles
+  async getAllRoles(): Promise<IRoleResponse[]> {
+    try {
+      const roles = await Role.find({}, "_id role_name");
+      const roleResponse: IRoleResponse[] = roles.map((role) => ({
+        id: role._id.toString(),
+        roleName: role.role_name,
+      }));
+      return roleResponse;
     } catch (error) {
       throw error;
     }

@@ -82,22 +82,18 @@ router.post(
   "/create",
   [authMiddleware, checkPermission("ADD_USER")],
   validates(userSignUpValidation),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userService: UserService = Container.get(UserService);
-      let userData: IUserSignupData = {
-        ...req.body,
-        createdBy: req.user.userId,
-      };
-      const newUser = await userService.addUser(userData);
-      res.status(201).json({
-        message: "User added successfully",
-        data: newUser,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  wrap(async (req: Request, res: Response, next: NextFunction) => {
+    const userService: UserService = Container.get(UserService);
+    let userData: IUserSignupData = {
+      ...req.body,
+      createdBy: req.user.userId,
+    };
+    const newUser = await userService.addUser(userData);
+    res.status(201).json({
+      message: "User added successfully",
+      data: newUser,
+    });
+  })
 );
 
 // Update User API
@@ -105,23 +101,19 @@ router.put(
   "/update/:userId",
   [authMiddleware, checkPermission("UPDATE_USER")],
   validates(userUpdateValidation),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = req.params.userId;
-      const userService: UserService = Container.get(UserService);
-      let updateUserData: IUserUpdateData = {
-        ...req.body,
-        updatedBy: req.user.userId,
-      };
-      const updatedUser = await userService.updateUser(userId, updateUserData);
-      res.status(200).json({
-        message: "User updated successfully",
-        data: updatedUser,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  wrap(async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.userId;
+    const userService: UserService = Container.get(UserService);
+    let updateUserData: IUserUpdateData = {
+      ...req.body,
+      updatedBy: req.user.userId,
+    };
+    const updatedUser = await userService.updateUser(userId, updateUserData);
+    res.status(200).json({
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  })
 );
 
 // Delete User API
@@ -135,6 +127,21 @@ router.delete(
 
     res.status(200).json({
       message: "User deleted successfully",
+    });
+  })
+);
+
+// Get all roles
+router.get(
+  "/all-roles",
+  [authMiddleware, checkPermission("ADD_USER")],
+  wrap(async (req: Request, res: Response, next: NextFunction) => {
+    const userService = Container.get(UserService);
+    const roles = await userService.getAllRoles();
+
+    res.status(200).json({
+      message: "Roles retrieved successfully",
+      data: roles,
     });
   })
 );
