@@ -13,17 +13,15 @@ export interface IUser extends Document {
   email: string;
   gender: string;
   religion: string;
-  username: string;
   password: string;
   is_active: boolean;
-  role_id: mongoose.Types.ObjectId | IRolePopulated; // Adjusted type
+  role_id: mongoose.Types.ObjectId | IRolePopulated;
   created_by?: string;
   updated_by?: string;
   created_at?: Date;
   updated_at?: Date;
 }
 
-// Define the schema
 const userSchema = new mongoose.Schema<IUser>({
   first_name: { type: String, required: false },
   last_name: { type: String, required: false },
@@ -32,7 +30,6 @@ const userSchema = new mongoose.Schema<IUser>({
   email: { type: String, required: false },
   gender: { type: String, required: false },
   religion: { type: String, required: false },
-  username: { type: String, required: true },
   password: { type: String, required: true },
   is_active: { type: Boolean, default: true },
   role_id: { type: mongoose.Schema.Types.ObjectId, ref: "Role" },

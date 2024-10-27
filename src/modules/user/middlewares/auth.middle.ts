@@ -30,7 +30,6 @@ export const authMiddleware = async (
     const decoded = jwt.verify(token, JWT_SECRET) as userTokenData;
     req.user = {
       userId: decoded.userId,
-      username: decoded.username,
       roleId: decoded.roleId,
       userType: decoded.userType,
     };
@@ -55,7 +54,7 @@ export const checkPermission = (featureName: string) => {
       // Check if the role has access to the feature
       const roleFeature = await RoleFeature.findOne({
         role_id: roleId,
-        feature_id: feature._id, // Use `_id` for MongoDB
+        feature_id: feature._id, 
       });
 
       if (!roleFeature) {
@@ -64,7 +63,6 @@ export const checkPermission = (featureName: string) => {
         );
       }
 
-      // If everything is fine, proceed to the next middleware or route handler
       next();
     } catch (error) {
       console.error("Permission check error:", error);

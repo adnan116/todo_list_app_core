@@ -24,7 +24,7 @@ router.post(
   validates(addTaskValidator),
   wrap(async (req: Request, res: Response, next: NextFunction) => {
     let taskCreateData: ITaskRequest = req.body;
-    taskCreateData = { ...taskCreateData, createdBy: req.user.username };
+    taskCreateData = { ...taskCreateData, createdBy: req.user.userId };
     const taskService = Container.get(TaskService);
     const task = await taskService.addTask(taskCreateData);
     res.status(201).json({
@@ -65,7 +65,7 @@ router.put(
     let taskUpdateData: ITaskRequest = req.body;
     taskUpdateData = {
       ...taskUpdateData,
-      updatedBy: req.user.username,
+      updatedBy: req.user.userId,
     };
     const taskService = Container.get(TaskService);
     const updatedTask = await taskService.updateTask(id, taskUpdateData);

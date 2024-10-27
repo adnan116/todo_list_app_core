@@ -6,8 +6,10 @@ import { validates } from "../../../middlewares/express-validation.middle";
 import {
   userLoginValidation,
   userSignUpValidation,
+  userUpdateValidation,
 } from "../validators/user.validator";
 import { authMiddleware, checkPermission } from "../middlewares/auth.middle";
+import { IUserSignupData, IUserUpdateData } from "../interfaces/user.interface";
 
 const router: Router = express.Router();
 
@@ -23,7 +25,6 @@ router.post(
       message: "User created successfully",
       data: {
         id: user?.id,
-        username: user?.username,
         email: user?.email,
       },
     });
@@ -74,6 +75,53 @@ router.get(
       data: users,
     });
   })
+);
+
+// Add User API for Admin
+router.post(
+  "/create",
+  [authMiddleware, checkPermission("ADD_USER")],
+  validates(userSignUpValidation),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userService: UserService = Container.get(UserService);
+      let userData: IUserSignupData = {
+        ...req.body,
+        createdBy: req.user.userId,
+      };
+      const newUser = await userService.addUser(userData);
+      res.status(201).json({
+        message: "User added successfully",
+        data: newUser,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Update User API
+router.put(
+  "/update/:userId",
+  [authMiddleware, checkPermission("UPDATE_USER")],
+  validates(userUpdateValidation),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.params.userId;
+      const userService: UserService = Container.get(UserService);
+      let updateUserData: IUserUpdateData = {
+        ...req.body,
+        updatedBy: req.user.userId,
+      };
+      const updatedUser = await userService.updateUser(userId, updateUserData);
+      res.status(200).json({
+        message: "User updated successfully",
+        data: updatedUser,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
 // Delete User API

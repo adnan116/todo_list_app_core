@@ -22,24 +22,34 @@ export interface IUserSignupData {
   email: string;
   gender: string;
   religion: string;
-  profilePicture?: string;
-  username: string;
   password: string;
+  roleId?: string;
   createdBy: string;
   createdAt?: Date;
   updatedBy?: string;
   updatedAt?: Date;
 }
 
+export interface IUserUpdateData {
+  firstName?: string;
+  lastName?: string;
+  dob?: Date;
+  phoneNumber?: string;
+  email?: string;
+  gender?: string;
+  religion?: string;
+  password: string;
+  roleId: string;
+  updatedBy: string;
+}
+
 export interface IUserSignupResponse {
   id?: string | null;
-  username?: string | null;
   email?: string | null;
 }
 
 export interface IUserLoginResponse {
   accessToken: string;
-  userName: string;
   userType: string;
   permittedFeatures: string[];
   userInfo: {
@@ -58,7 +68,6 @@ export interface IPaginatedUsers {
 
 export interface userTokenData {
   userId: string;
-  username: string;
   roleId: string;
   userType: string;
 }

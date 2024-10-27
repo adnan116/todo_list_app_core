@@ -24,7 +24,7 @@ router.post(
   wrap(async (req: Request, res: Response, next: NextFunction) => {
     const taskCategoryService = Container.get(TaskCategoryService);
     let newCategoryData: ITaskCategoryRequest = req.body;
-    newCategoryData = { ...newCategoryData, createdBy: req.user.username };
+    newCategoryData = { ...newCategoryData, createdBy: req.user.userId };
     const newCategory = await taskCategoryService.addTaskCategory(
       newCategoryData
     );
@@ -64,7 +64,7 @@ router.put(
     let updateData: ITaskCategoryRequest = req.body;
     updateData = {
       ...updateData,
-      updatedBy: req.user.username,
+      updatedBy: req.user.userId,
       updatedAt: new Date(),
     };
     const taskCategoryService = Container.get(TaskCategoryService);

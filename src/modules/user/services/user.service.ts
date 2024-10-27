@@ -4,6 +4,7 @@ import {
   IUserLoginResponse,
   IUserSignupData,
   IUserSignupResponse,
+  IUserUpdateData,
 } from "../interfaces/user.interface";
 import BadRequestError from "../../../errors/bad-request.error";
 import bcrypt from "bcryptjs";
@@ -42,11 +43,6 @@ export class UserService {
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Generate dynamic username if not provided, or use the provided username
-      const username =
-        userInfo.username ||
-        (await this.generateDynamicUsername(firstName, lastName));
-
       // Get the 'user' role
       const userRole = await Role.findOne({ role_name: "user" });
       if (!userRole) {
@@ -63,7 +59,6 @@ export class UserService {
           email,
           gender,
           religion,
-          username,
           password: hashedPassword,
           role_id: userRole._id,
           is_active: true,
@@ -72,7 +67,6 @@ export class UserService {
       ]);
       // Prepare the response
       const userResponseInfo: IUserSignupResponse = {
-        username: user[0].username,
         email: user[0].email,
       };
       return userResponseInfo;
@@ -81,24 +75,13 @@ export class UserService {
     }
   }
 
-  async generateDynamicUsername(
-    firstName: string,
-    lastName: string
-  ): Promise<string> {
-    const baseName = `${firstName}${lastName}`.toLowerCase().replace(/\s/g, "");
-    const randomNum = Math.floor(Math.random() * 9000) + 1000;
-    const username = `${baseName}${randomNum}`;
-
-    return username.slice(0, 20);
-  }
-
   async verifyUserLogin(
     username: string,
     password: string
   ): Promise<IUserLoginResponse> {
     try {
       // Find the user by username and populate the role based on `role_id`
-      const user = await User.findOne({ username }).populate<{
+      const user = await User.findOne({ email: username }).populate<{
         role_id: {
           id: string;
           role_name: string;
@@ -133,7 +116,6 @@ export class UserService {
       // Create JWT payload with user ID and role
       const tokenPayload = {
         userId: user.id,
-        username: user.username,
         roleId: user.role_id.id,
         userType: user.role_id.role_name,
       };
@@ -145,7 +127,6 @@ export class UserService {
       // Prepare the login response
       const loginResponse: IUserLoginResponse = {
         accessToken,
-        userName: user.username,
         userInfo: {
           firstName: user.first_name ?? null,
           lastName: user.last_name ?? null,
@@ -157,7 +138,6 @@ export class UserService {
 
       return loginResponse;
     } catch (error) {
-      console.error("Error during login:", error);
       throw error;
     }
   }
@@ -210,9 +190,97 @@ export class UserService {
         totalUsers,
       };
     } catch (error) {
-      console.error("Error fetching users:", error);
       throw error;
     }
+  }
+
+  async addUser(userInfo: IUserSignupData) {
+    const {
+      firstName,
+      lastName,
+      dob,
+      phoneNumber,
+      email,
+      gender,
+      religion,
+      password,
+      roleId,
+      createdBy,
+    } = userInfo;
+
+    // Check if the email already exists in the database
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new BadRequestError("Email already in use");
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Find the role
+    const role = await Role.findOne({ _id: roleId });
+    if (!role) {
+      throw new BadRequestError("Role not found");
+    }
+
+    // Create the user
+    const newUser = await User.create({
+      first_name: firstName,
+      last_name: lastName,
+      dob,
+      phone_number: phoneNumber,
+      email,
+      gender,
+      religion,
+      password: hashedPassword,
+      role_id: role._id,
+      is_active: true,
+      created_by: createdBy,
+    });
+
+    return {
+      id: newUser._id,
+      email: newUser.email,
+    };
+  }
+
+  async updateUser(userId: string, userInfo: IUserUpdateData) {
+    const updateData: IUserUpdateData = { ...userInfo };
+
+    // If updating password, hash it
+    if (userInfo.password) {
+      updateData.password = await bcrypt.hash(userInfo.password, 10);
+    }
+
+    // Update the user
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        first_name: updateData?.firstName,
+        last_name: updateData?.lastName,
+        dob: updateData?.dob,
+        phone_number: updateData?.phoneNumber,
+        email: updateData?.email,
+        gender: updateData?.gender,
+        religion: updateData?.religion,
+        password: updateData?.password,
+        role_id: updateData?.roleId,
+        is_active: true,
+        updated_by: updateData?.updatedBy,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!updatedUser) {
+      throw new BadRequestError("User not found");
+    }
+
+    return {
+      id: updatedUser._id,
+      email: updatedUser.email,
+    };
   }
 
   async deleteUser(userId: string): Promise<void> {
@@ -226,7 +294,6 @@ export class UserService {
       // Delete the user from the database
       await User.findByIdAndDelete(userId);
     } catch (error) {
-      console.error("Error deleting user:", error);
       throw error;
     }
   }
