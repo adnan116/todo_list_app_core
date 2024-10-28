@@ -59,13 +59,6 @@ export interface IUserLoginResponse {
   };
 }
 
-export interface IPaginatedUsers {
-  users: IUser[];
-  currentPage: number;
-  totalPages: number;
-  totalUsers: number;
-}
-
 export interface userTokenData {
   userId: string;
   roleId: string;

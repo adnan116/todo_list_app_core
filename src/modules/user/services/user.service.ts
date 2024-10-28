@@ -1,6 +1,5 @@
 import { Service } from "typedi";
 import {
-  IPaginatedUsers,
   IRoleResponse,
   IUserLoginResponse,
   IUserSignupData,
@@ -15,6 +14,8 @@ import jwt from "jsonwebtoken";
 import { jwtSecret, tokenExpireTime } from "../../../configs/app.config";
 import AuthError from "../../../errors/auth.error";
 import RoleFeature from "../../../models/role-feature";
+import { toCamelKeys } from "keys-transform";
+import mongoose from "mongoose";
 
 @Service()
 export class UserService {
@@ -148,7 +149,7 @@ export class UserService {
     limit: number = 10,
     search?: string,
     filters?: { [key: string]: any }
-  ): Promise<IPaginatedUsers> {
+  ) {
     try {
       // Calculate the skip value for pagination
       const skip = (page - 1) * limit;
@@ -173,9 +174,28 @@ export class UserService {
 
       // Fetch users with pagination and populate the role
       const users = await User.find(query)
-        .populate<{ role_id: { id: string; role_name: string } }>("role_id")
+        .populate<{
+          role_id: { _id: mongoose.Types.ObjectId; role_name: string };
+        }>("role_id")
         .skip(skip)
-        .limit(limit);
+        .limit(limit)
+        .lean();
+
+      const userList = users.map((user) => {
+        const transformedTask = toCamelKeys(user);
+
+        // Ensure `id`, `categoryId`, and `userId` are correctly converted to strings
+        return {
+          ...transformedTask,
+          id: (user._id as mongoose.Types.ObjectId).toString(),
+          roleId: user.role_id
+            ? {
+                id: (user.role_id._id as mongoose.Types.ObjectId).toString(),
+                roleName: user.role_id.role_name,
+              }
+            : null,
+        };
+      });
 
       // Get the total count of users based on the query
       const totalUsers = await User.countDocuments(query);
@@ -185,7 +205,7 @@ export class UserService {
 
       // Return the paginated response
       return {
-        users,
+        users: userList,
         currentPage: page,
         totalPages,
         totalUsers,
@@ -273,8 +293,8 @@ export class UserService {
         new: true,
       }
     );
-    console.log({updatedUser});
-    
+    console.log({ updatedUser });
+
     if (!updatedUser) {
       throw new BadRequestError("User not found");
     }
