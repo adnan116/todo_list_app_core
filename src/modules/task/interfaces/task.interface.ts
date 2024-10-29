@@ -13,6 +13,8 @@ export interface ITaskRequest {
   userId?: {
     id?: string;
     username?: string;
+    firstName?: string;
+    lastName?: string;
   };
   createdBy?: string;
   createdAt?: Date;
@@ -41,4 +43,6 @@ export interface IInnerCategoryAndUser {
   _id: mongoose.Types.ObjectId;
   category_name?: string;
   username?: string;
+  first_name?: string;
+  last_name?: string;
 }

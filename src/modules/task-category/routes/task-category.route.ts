@@ -94,4 +94,19 @@ router.delete(
   })
 );
 
+// Get all task categories without pagination
+router.get(
+  "/all-categories",
+  [authMiddleware, checkPermission("GET_TASK")],
+  wrap(async (req: Request, res: Response, next: NextFunction) => {
+    const taskCategoryService = Container.get(TaskCategoryService);
+    const taskCategories = await taskCategoryService.getAllTaskCategories();
+
+    res.status(200).json({
+      message: "Task categories retrieved successfully",
+      data: taskCategories,
+    });
+  })
+);
+
 export default router;

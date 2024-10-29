@@ -2,6 +2,7 @@ import { Service } from "typedi";
 import {
   IRoleResponse,
   IUserLoginResponse,
+  IUserResponse,
   IUserSignupData,
   IUserSignupResponse,
   IUserUpdateData,
@@ -67,7 +68,7 @@ export class UserService {
           created_by: createdBy,
         },
       ]);
-      // Prepare the response
+
       const userResponseInfo: IUserSignupResponse = {
         email: user[0].email,
       };
@@ -115,7 +116,7 @@ export class UserService {
         throw new AuthError("Invalid credentials");
       }
 
-      // Create JWT payload with user ID and role
+      // Create JWT payload with user ID, role and userType
       const tokenPayload = {
         userId: user.id,
         roleId: user.role_id.id,
@@ -126,10 +127,10 @@ export class UserService {
         expiresIn: tokenExpireTime,
       });
 
-      // Prepare the login response
       const loginResponse: IUserLoginResponse = {
         accessToken,
         userInfo: {
+          userId: user.id,
           firstName: user.first_name ?? null,
           lastName: user.last_name ?? null,
           email: user.email ?? null,
@@ -151,59 +152,46 @@ export class UserService {
     filters?: { [key: string]: any }
   ) {
     try {
-      // Calculate the skip value for pagination
       const skip = (page - 1) * limit;
-
-      // Build the query object
       const query: { [key: string]: any } = {};
 
-      // If a search term is provided, add it to the query
-      if (search) {
+      // If a search term is provided and is not empty, add it to the query
+      if (search && search.trim() !== "") {
+        const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         query.$or = [
-          { first_name: { $regex: search, $options: "i" } }, // Case-insensitive search
-          { last_name: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-          { username: { $regex: search, $options: "i" } },
+          { first_name: { $regex: safeSearch, $options: "i" } },
+          { last_name: { $regex: safeSearch, $options: "i" } },
+          { email: { $regex: safeSearch, $options: "i" } },
+          { username: { $regex: safeSearch, $options: "i" } },
         ];
       }
 
-      // If additional filters are provided, add them to the query
       if (filters) {
         Object.assign(query, filters);
       }
 
-      // Fetch users with pagination and populate the role
       const users = await User.find(query)
         .populate<{
           role_id: { _id: mongoose.Types.ObjectId; role_name: string };
-        }>("role_id")
+        }>("role_id", "role_name")
         .skip(skip)
         .limit(limit)
         .lean();
 
-      const userList = users.map((user) => {
-        const transformedTask = toCamelKeys(user);
+      const userList = users.map((user) => ({
+        ...toCamelKeys(user),
+        id: (user._id as mongoose.Types.ObjectId).toString(),
+        roleId: user.role_id
+          ? {
+              id: (user.role_id._id as mongoose.Types.ObjectId).toString(),
+              roleName: user.role_id.role_name,
+            }
+          : null,
+      }));
 
-        // Ensure `id`, `categoryId`, and `userId` are correctly converted to strings
-        return {
-          ...transformedTask,
-          id: (user._id as mongoose.Types.ObjectId).toString(),
-          roleId: user.role_id
-            ? {
-                id: (user.role_id._id as mongoose.Types.ObjectId).toString(),
-                roleName: user.role_id.role_name,
-              }
-            : null,
-        };
-      });
-
-      // Get the total count of users based on the query
       const totalUsers = await User.countDocuments(query);
-
-      // Calculate the total number of pages
       const totalPages = Math.ceil(totalUsers / limit);
 
-      // Return the paginated response
       return {
         users: userList,
         currentPage: page,
@@ -268,12 +256,10 @@ export class UserService {
   async updateUser(userId: string, userInfo: IUserUpdateData) {
     const updateData: IUserUpdateData = { ...userInfo };
 
-    // If updating password, hash it
     if (userInfo.password) {
       updateData.password = await bcrypt.hash(userInfo.password, 10);
     }
 
-    // Update the user
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
@@ -293,7 +279,6 @@ export class UserService {
         new: true,
       }
     );
-    console.log({ updatedUser });
 
     if (!updatedUser) {
       throw new BadRequestError("User not found");
@@ -329,6 +314,21 @@ export class UserService {
         roleName: role.role_name,
       }));
       return roleResponse;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // get all users without pagination
+  async getAllUsers(): Promise<IUserResponse[]> {
+    try {
+      const users = await User.find({}, "_id first_name last_name");
+      const usersResponse: IUserResponse[] = users.map((user) => ({
+        id: (user._id as mongoose.Types.ObjectId).toString(),
+        firstName: user.first_name,
+        lastName: user.last_name,
+      }));
+      return usersResponse;
     } catch (error) {
       throw error;
     }

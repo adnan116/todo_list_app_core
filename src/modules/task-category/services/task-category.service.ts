@@ -37,7 +37,6 @@ export class TaskCategoryService {
 
       const savedCategory = await newCategory.save();
 
-      // Return the response in the format of ITaskCategoryResponse
       return {
         id: savedCategory.id,
         categoryName: savedCategory.category_name,
@@ -65,7 +64,6 @@ export class TaskCategoryService {
       ];
     }
 
-    // Fetch task categories with pagination
     const categoriesList = await TaskCategory.find(query)
       .skip(skip)
       .limit(limit)
@@ -94,7 +92,6 @@ export class TaskCategoryService {
     try {
       const { categoryName, description, updatedBy } = data;
 
-      // Find and update the task category
       const updatedCategory = await TaskCategory.findByIdAndUpdate(
         id,
         {
@@ -110,7 +107,6 @@ export class TaskCategoryService {
         throw new BadRequestError("Task category not found");
       }
 
-      // Return the response in the format of ITaskCategoryResponse
       return {
         id: updatedCategory.id,
         categoryName: updatedCategory.category_name,
@@ -130,6 +126,21 @@ export class TaskCategoryService {
       }
 
       await TaskCategory.findByIdAndDelete(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // get all task categories without pagination
+  async getAllTaskCategories(): Promise<ITaskCategoryResponse[]> {
+    try {
+      const TaskCategories = await TaskCategory.find({}, "_id category_name");
+      const TaskCategoriesResponse: ITaskCategoryResponse[] =
+        TaskCategories.map((taskCategory) => ({
+          id: taskCategory._id.toString(),
+          categoryName: taskCategory.category_name,
+        }));
+      return TaskCategoriesResponse;
     } catch (error) {
       throw error;
     }

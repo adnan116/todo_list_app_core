@@ -13,7 +13,7 @@ import { IUserSignupData, IUserUpdateData } from "../interfaces/user.interface";
 
 const router: Router = express.Router();
 
-// Sign up/ Add API for new users
+// Sign up API for new users
 router.post(
   "/sign-up",
   validates(userSignUpValidation),
@@ -142,6 +142,21 @@ router.get(
     res.status(200).json({
       message: "Roles retrieved successfully",
       data: roles,
+    });
+  })
+);
+
+// Get all users without pagination
+router.get(
+  "/all-users",
+  [authMiddleware, checkPermission("GET_TASK")],
+  wrap(async (req: Request, res: Response, next: NextFunction) => {
+    const userService = Container.get(UserService);
+    const users = await userService.getAllUsers();
+
+    res.status(200).json({
+      message: "Users retrieved successfully",
+      data: users,
     });
   })
 );

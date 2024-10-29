@@ -157,16 +157,11 @@ const initializeRolesAndFeatures = async () => {
   }
 };
 
-// Connect to the database and initialize
 const initializeDatabase = async () => {
   try {
     await mongoose.connect(mongoURI, mongooseOptions);
     console.log("[DATABASE SERVER] Connected to the database.");
-
-    // Initialize roles, features, and admin user
     await initializeRolesAndFeatures();
-
-    // Close the connection after completion
     await mongoose.disconnect();
     console.log("[DATABASE SERVER] Disconnected from the database.");
   } catch (error) {
@@ -175,5 +170,5 @@ const initializeDatabase = async () => {
   }
 };
 
-// Run the script
+
 initializeDatabase();

@@ -60,7 +60,6 @@ export class TaskService {
 
       const savedTask = await newTask.save();
 
-      // Return the response
       return {
         id: savedTask.id,
         title: savedTask.title,
@@ -75,7 +74,6 @@ export class TaskService {
     }
   }
 
-  // Get all tasks with filtering, searching, and pagination
   // Get all tasks with filtering, searching, and pagination
   async getTasks(
     page: number = 1,
@@ -94,7 +92,6 @@ export class TaskService {
       ];
     }
 
-    // If additional filters are provided, add them to the query
     if (filters?.categoryId) {
       query.category_id = filters.categoryId;
     }
@@ -102,7 +99,6 @@ export class TaskService {
       query.user_id = filters.userId;
     }
 
-    // Fetch tasks with pagination
     const tasksList = await Task.find(query)
       .skip(skip)
       .limit(limit)
@@ -110,14 +106,15 @@ export class TaskService {
         "category_id",
         "category_name"
       )
-      .populate<{ user_id: IInnerCategoryAndUser }>("user_id", "username")
+      .populate<{ user_id: IInnerCategoryAndUser }>(
+        "user_id",
+        "username first_name last_name"
+      )
       .lean();
 
     // Manually handle conversion to camel case and ensure ObjectId fields are converted to strings
     const tasks = tasksList.map((task) => {
       const transformedTask = toCamelKeys(task);
-
-      // Ensure `id`, `categoryId`, and `userId` are correctly converted to strings
       return {
         ...transformedTask,
         id: (task._id as mongoose.Types.ObjectId).toString(),
@@ -131,6 +128,8 @@ export class TaskService {
           ? {
               id: (task.user_id._id as mongoose.Types.ObjectId).toString(),
               username: task.user_id.username,
+              firstName: task.user_id.first_name,
+              lastName: task.user_id.last_name,
             }
           : null,
       };

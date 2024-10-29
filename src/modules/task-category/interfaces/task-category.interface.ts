@@ -19,7 +19,7 @@ export interface ITaskCategoryRequest {
 export interface ITaskCategoryResponse {
   id: string;
   categoryName: string;
-  description: string;
+  description?: string;
   createdBy?: string | null;
 }
 

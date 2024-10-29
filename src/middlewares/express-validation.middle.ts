@@ -46,7 +46,7 @@ function extraFieldCheck(
   isExtraFieldExists: boolean;
   allowedFields: string[];
 } {
-  // allowrd fields extractions from validators
+  // allowed fields extractions from validators
   const allowedFields: string[] = validators
     .reduce((fields: any, rule: any) => {
       return [...fields, ...rule.builder.fields];

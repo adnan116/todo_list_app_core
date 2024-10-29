@@ -53,6 +53,7 @@ export interface IUserLoginResponse {
   userType: string;
   permittedFeatures: string[];
   userInfo: {
+    userId?: string;
     firstName?: string;
     lastName?: string;
     email?: string;
@@ -68,4 +69,10 @@ export interface userTokenData {
 export interface IRoleResponse {
   id: string;
   roleName: string;
+}
+
+export interface IUserResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
 }
