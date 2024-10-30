@@ -7,6 +7,7 @@
 - [Application Configuration](#application-configuration)
 - [Installing External Packages](#installing-external-packages)
 - [Database Configuration](#database-configuration)
+- [Project Run](#project-run)
 - [Sample User Credentials](#sample-user-credentials)
 - [API Endpoints](#api-endpoints)
 
