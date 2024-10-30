@@ -1,6 +1,4 @@
-# todo_list_app_core
-
-# Ecommerce Management with AI
+# Enhanced ToDo List Application (Backend)
 
 ## Table of Contents
 
