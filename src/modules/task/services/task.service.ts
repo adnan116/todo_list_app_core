@@ -85,10 +85,11 @@ export class TaskService {
     const query: { [key: string]: any } = {};
 
     // If a search term is provided, add it to the query
-    if (search) {
+    if (search && search.trim() !== "") {
+      const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
       ];
     }
 

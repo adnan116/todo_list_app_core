@@ -170,5 +170,4 @@ const initializeDatabase = async () => {
   }
 };
 
-
 initializeDatabase();
