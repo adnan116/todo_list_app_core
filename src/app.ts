@@ -1,7 +1,7 @@
 import { json, urlencoded } from "body-parser";
 import cors from "cors";
 import "reflect-metadata";
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import * as http from "http";
 import moment from "moment-timezone";
 import { defaultDateFormat, defaultTimezone } from "./configs/app.config";
@@ -65,6 +65,11 @@ export default async function appFactory(): Promise<Application> {
    * Register Error Handler
    */
   app.use(errorHandler as any);
+
+  // root routes
+  app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({ message: "Running Successfully" });
+  });
 
   return app;
 }
