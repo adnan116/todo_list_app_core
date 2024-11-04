@@ -15,7 +15,7 @@ import {
 } from "../configs/app.config";
 
 // Construct MongoDB connection URI
-const mongoURI = `mongodb://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
+const mongoURI = `mongodb+srv://${dbUser}:${dbPassword}@${dbHost}/?retryWrites=true&w=majority&appName=${dbName}`;
 
 const mongooseOptions = {
   dbName: dbName,
